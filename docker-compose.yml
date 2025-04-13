@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  # NestJS application service
+  nestjs-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nestjs-app
+    ports:
+      - '3000:3000'
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=nestuser
+      - DB_PASSWORD=nestpass
+      - DB_NAME=nestdb
+      - JWT_SECRET=supersecret
+      - JWT_EXPIRES_IN=3600s
+    depends_on:
+      - postgres
+    networks:
+      - app-network
+
+  # PostgreSQL service
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      POSTGRES_USER: nestuser
+      POSTGRES_PASSWORD: nestpass
+      POSTGRES_DB: nestdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
+    driver: bridge
